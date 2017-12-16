@@ -1,3 +1,4 @@
+const _method    = require("method-override");
 const bodyParser = require("body-parser");
 const mongoose   = require("mongoose");
 const express    = require("express");
@@ -26,9 +27,9 @@ var blogSchema = new mongoose.Schema({
 var Blog = mongoose.model("Blog", blogSchema);
 
 // Blog.create({
-//     title: "Star Wars",
-//     image: "http://www.starwarsidentities.com/feuil/themes/web/images/characters/darth-vader.png",
-//     body: "The new movie comes out today."
+//     title: "Spock",
+//     image: "http://digitalspyuk.cdnds.net/16/44/768x512/gallery-movies-star-trek-spock-4.jpg",
+//     body: "Logial dude."
 // });
 
 // RESTful routing begins
@@ -42,6 +43,31 @@ app.get('/blogs', (req, res) => {
             console.log("Error: ", err) 
         } else {
             res.render("index", { blogs })
+        }
+    });
+});
+
+app.get('/blogs/new', (req,res) => {
+    res.render('new');
+});
+
+app.post('/blogs', (req, res) => {
+    Blog.create(req.body.blog, (err, newBlog) => {
+        if (err) {
+            res.render('new');
+        } else {
+            res.redirect('/blogs');
+        }
+    });
+});
+
+app.get('/blogs/:id', (req, res) => {
+    var blogId = req.params.id;
+    Blog.findById(blogId, (err, fetchedBlog) => {
+        if (err) {
+            console.log('Error: ', err);
+        } else {
+            res.render('show', {blog: fetchedBlog});
         }
     });
 });
