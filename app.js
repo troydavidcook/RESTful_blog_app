@@ -1,18 +1,17 @@
-const _method    = require("method-override");
-const bodyParser = require("body-parser");
-const mongoose   = require("mongoose");
-const express    = require("express");
-const mongodb    = require("mongodb");
-const path       = require("path");
-const app        = express();
+const methodOverride    = require("method-override");
+const bodyParser        = require("body-parser");
+const mongoose          = require("mongoose");
+const express           = require("express");
+const mongodb           = require("mongodb");
+const path              = require("path");
+const app               = express();
 
+// App Config
 mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://localhost/restful_blog_app",{useMongoClient: true});
-
 app.use(express.static(path.join(__dirname, "public")));
-
 app.use(bodyParser.urlencoded({extended: true}));
-
+app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 
 
@@ -36,7 +35,7 @@ var Blog = mongoose.model("Blog", blogSchema);
 app.get('/', (req, res) => {
     res.redirect("/blogs");
 });
-
+ // Index Page, which slash route above will redirect to.
 app.get('/blogs', (req, res) => {
     Blog.find({}, (err, blogs) => {
         if (err) {
@@ -46,11 +45,13 @@ app.get('/blogs', (req, res) => {
         }
     });
 });
-
+  
+// Renders form to add to index page.
 app.get('/blogs/new', (req,res) => {
     res.render('new');
 });
 
+// Post route for new item that renders the index page.
 app.post('/blogs', (req, res) => {
     Blog.create(req.body.blog, (err, newBlog) => {
         if (err) {
@@ -61,6 +62,7 @@ app.post('/blogs', (req, res) => {
     });
 });
 
+// Show page to show individual items by ID.
 app.get('/blogs/:id', (req, res) => {
     var blogId = req.params.id;
     Blog.findById(blogId, (err, fetchedBlog) => {
@@ -68,6 +70,32 @@ app.get('/blogs/:id', (req, res) => {
             console.log('Error: ', err);
         } else {
             res.render('show', {blog: fetchedBlog});
+        }
+    });
+});
+
+// Renders form by ID for item to edit.
+app.get('/blogs/:id/edit', (req, res) => {
+    var blogId = req.params.id;
+    Blog.findById(blogId, (err, fetchedBlog) => {
+        if (err) {
+            res.redirect('/blogs');
+        } else {
+            res.render('edit', {blog: fetchedBlog});
+        }
+    })
+});
+
+// Route to actually update item by ID. Uses a redirect to GET
+app.put('/blogs/:id', (req, res) => {
+    var blogId = req.params.id;
+    var newData = req.body.blog;
+    Blog.findByIdAndUpdate(blogId, newData, (err, updatedBlog) => {
+        if (err) {
+            res.redirect('/blogs');
+        }
+        else {
+            res.redirect(`/blogs/${blogId}`);
         }
     });
 });
