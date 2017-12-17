@@ -1,3 +1,4 @@
+const expressSanitizer  = require("express-sanitizer");
 const methodOverride    = require("method-override");
 const bodyParser        = require("body-parser");
 const mongoose          = require("mongoose");
@@ -11,6 +12,8 @@ mongoose.Promise = global.Promise;
 mongoose.connect("mongodb://localhost/restful_blog_app",{useMongoClient: true});
 app.use(express.static(path.join(__dirname, "public")));
 app.use(bodyParser.urlencoded({extended: true}));
+// Sanitizer must be implemented after body-parser
+app.use(expressSanitizer());
 app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 
@@ -53,6 +56,7 @@ app.get('/blogs/new', (req,res) => {
 
 // Post route for new item that renders the index page.
 app.post('/blogs', (req, res) => {
+    req.body.blog.body = req.sanitize(req.body.blog.body)
     Blog.create(req.body.blog, (err, newBlog) => {
         if (err) {
             res.render('new');
@@ -90,12 +94,26 @@ app.get('/blogs/:id/edit', (req, res) => {
 app.put('/blogs/:id', (req, res) => {
     var blogId = req.params.id;
     var newData = req.body.blog;
+    req.body.blog.body = req.sanitize(req.body.blog.body);
     Blog.findByIdAndUpdate(blogId, newData, (err, updatedBlog) => {
         if (err) {
-            res.redirect('/blogs');
+            console.log("Error", err);
         }
         else {
             res.redirect(`/blogs/${blogId}`);
+        }
+    });
+});
+
+// DELETE route!
+app.delete('/blogs/:id', (req, res) => {
+    var blogId = req.params.id;
+    Blog.findByIdAndRemove(blogId, (err) => {
+        if (err) {
+            console.log('Error: ', err);
+        }
+        else {
+            res.redirect('/blogs')
         }
     });
 });
