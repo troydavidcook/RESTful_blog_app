@@ -1,5 +1,10 @@
 img {
     max-width: 500px;
+    margin-top: 20px;
+}
+
+h2 {
+    margin-top: 40px;
 }
 
 i.icon {
@@ -8,6 +13,15 @@ i.icon {
 
 .container.main {
     margin-top: 7.0em; 
+}
+
+.extension {
+    margin-top: 30px;
+    margin-bottom: 50px;
+}
+
+.description {
+    margin-bottom: 40px;
 }
 
 #delete {

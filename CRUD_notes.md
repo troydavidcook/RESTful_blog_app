@@ -18,14 +18,18 @@ const app               = express();
 ##### A way of mapping our route architecutre in our CRUD (Create, Read, Update, Destroy) applications.
 ###### There can be serveral pages, but this is a way to make it clean and easier to understand and read the way our routes are handinling our HTTP requests. Get ready for some 'method-override' npm!
 
-| **URL** | **HTTP Verb** |  **Action**|
-|------------|-------------|------------|
-| /campgrounds/         | GET       | index  
-| /campgrounds/new         | GET       | new   
-| /campgrounds          | POST      | create   
-| /campgrounds/:id      | GET       | show       
-| /campgrounds/:id/edit | GET       | edit       
-| /campgrounds/:id      | PATCH/PUT | update 
+  restful_notes restful_routes 
+  ___
+
+| **URL** | **HTTP Verb** |  **Action**| **Mongoose Method**|
+|------------|-------------|------------|------------|
+| /blog/         | GET       | index    | Blog.find({}) 
+| /blog/:id      | GET       | show     | Blog.findById(id) : Renders Form
+| /blog/:id      | PATCH/PUT | update   | Blog.findByIdAndUpdate()
+| /blog/new      | GET       | new      | N/A : Renders Form
+| /blog          | POST      | create   | Blog.create()
+| /blog/:id/edit | GET       | edit     | Blog.findById(id)
+| /blog/:id/     | DELETE    | Remove   | Blog.findByIdAndRemove(id)
 
 
 
@@ -54,7 +58,7 @@ Sanitizing data with Express.
 const expressSanitizer  = require("express-sanitizer");
 
 app.use(bodyParser.urlencoded({extended: true}));
-// Sanitizer must be implemented after body-parser
+    // Sanitizer must be implemented after body-parser
 app.use(expressSanitizer());
 
 // Post route for new item that renders the index page.
